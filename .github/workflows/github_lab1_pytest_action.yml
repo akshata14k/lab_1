@@ -3,17 +3,12 @@ run-name: "Pytest on ${{ github.ref_name }} by ${{ github.actor }}"
 
 on:
   push:
-    branches:
-      - main
-      - 'releases/**'
-  # If you don't want tests on issues/labels, delete everything below:
-  # issues:
-  #   types: [opened, labeled]
+    branches: [ main ]   # add others if you like, e.g., 'branch1'
+  pull_request:
 
 jobs:
   test:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -21,7 +16,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.10'   # or '3.8' if you need that
+          python-version: '3.10'   # or '3.8' if required
 
       - name: Install deps
         run: |
@@ -29,8 +24,9 @@ jobs:
           pip install -r requirements.txt || true
           pip install pytest
 
-      - name: Run tests
-        run: pytest -q --junitxml=pytest-report.xml
+      - name: Run pytest
+        run: |
+          PYTHONPATH=. pytest -q test --junitxml=pytest-report.xml
 
       - name: Upload test results
         if: always()
